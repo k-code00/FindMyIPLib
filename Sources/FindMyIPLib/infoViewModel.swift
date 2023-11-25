@@ -8,23 +8,33 @@
 import Foundation
 import Combine
 
+enum InfoViewState {
+    case idle
+    case loading
+    case success(IPInformation)
+    case failure(String)
+}
+
 class infoViewModel: ObservableObject {
-    @Published var ipInformation: IPInformation?
-    @Published var errorMessage: String?
-    @Published var isLoading = false
-    @Published var showAlert = false
+    @Published var state: InfoViewState = .idle
+    
+    var isFailure: Bool {
+        if case .failure(_) = state {
+            return true
+        } else {
+            return false
+        }
+    }
     
     func getIPInformation() {
-        self.isLoading = true
+        self.state = .loading
         fetchIPInformation { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
                 switch result {
                 case .success(let info):
-                    self?.ipInformation = info
+                    self?.state = .success(info)
                 case .failure(let error):
-                    self?.errorMessage = error.localizedDescription
-                    self?.showAlert = true
+                    self?.state = .failure(error.localizedDescription)
                 }
             }
         }

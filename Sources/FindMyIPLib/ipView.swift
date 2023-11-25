@@ -9,30 +9,31 @@ import SwiftUI
 
 public struct ipView: View {
     @StateObject private var viewModel = infoViewModel()
-    
+
     public init() { }
 
     public var body: some View {
         List {
-            if viewModel.isLoading {
+            switch viewModel.state {
+            case .loading:
                 ProgressView()
                     .scaleEffect(1.5)
                     .padding()
-            } else if let ipInfo = viewModel.ipInformation {
+            case .success(let ipInfo):
                 Section(header: Text("IP Address")) {
                     Menu {
                         Button(action: {}) {
-                            Text("Version: \(ipInfo.version )")
+                            Text("Version: \(ipInfo.version)")
                         }
                         Button(action: {}) {
-                            Text("City: \(ipInfo.city )")
+                            Text("City: \(ipInfo.city)")
                         }
                         Button(action: {}) {
-                            Text("Region: \(ipInfo.region )")
+                            Text("Region: \(ipInfo.region)")
                         }
                     } label: {
                         HStack {
-                            Text(ipInfo.ip )
+                            Text(ipInfo.ip)
                                 .fontWeight(.light)
                                 .foregroundColor(.blue)
                             Spacer()
@@ -43,11 +44,13 @@ public struct ipView: View {
                     }
                     .menuStyle(DefaultMenuStyle())
                 }
-            } else if viewModel.errorMessage != nil {
+            case .failure(let errorMessage):
                 Section {
-                    Text("Error: Refresh To Find IP")
+                    Text("Error: \(errorMessage)")
                         .foregroundColor(.red)
                 }
+            case .idle:
+                ProgressView("Loading...")
             }
         }
         .refreshable {
@@ -56,13 +59,11 @@ public struct ipView: View {
         .onAppear {
             viewModel.getIPInformation()
         }
-        .alert(isPresented: $viewModel.showAlert) {
-            Alert(
-                title: Text("Error"),
-                message: Text("Cannot Find IP"),
-                dismissButton: .default(Text("OK"))
-            )
+        .alert(isPresented: $viewModel.isFailure) {
+            guard case let .failure(errorMessage) = viewModel.state else {
+                return Alert(title: Text("Error"), message: Text("Unknown Error"), dismissButton: .default(Text("OK")))
+            }
+            return Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
         }
     }
 }
-
