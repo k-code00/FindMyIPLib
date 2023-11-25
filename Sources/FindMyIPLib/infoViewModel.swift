@@ -18,7 +18,7 @@ enum InfoViewState {
 class infoViewModel: ObservableObject {
     @Published var state: InfoViewState = .idle
     private var cancellables = Set<AnyCancellable>()
-    private var networkManager: IPInfoFetcher
+    private var networkManager: IPInfoFetcher // Assuming this is your network manager class
 
     init(networkManager: IPInfoFetcher) {
         self.networkManager = networkManager
