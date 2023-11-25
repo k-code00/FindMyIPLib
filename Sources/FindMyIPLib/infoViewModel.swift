@@ -24,7 +24,6 @@ class infoViewModel: ObservableObject {
     init(networkManager: IPInfoFetcher = IPInfoFetcher()) {
         self.networkManager = networkManager
 
-        // Observe changes to the state and update showErrorAlert
         $state
             .map { state in
                 if case .failure(_) = state {
