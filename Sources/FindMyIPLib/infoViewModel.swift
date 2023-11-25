@@ -17,7 +17,13 @@ enum InfoViewState {
 
 class infoViewModel: ObservableObject {
     @Published var state: InfoViewState = .idle
-    
+    private var cancellables = Set<AnyCancellable>()
+    private var networkManager: IPInfoFetcher
+
+    init(networkManager: IPInfoFetcher) {
+        self.networkManager = networkManager
+    }
+
     var isFailure: Bool {
         if case .failure(_) = state {
             return true
@@ -28,15 +34,19 @@ class infoViewModel: ObservableObject {
     
     func getIPInformation() {
         self.state = .loading
-        fetchIPInformation { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let info):
-                    self?.state = .success(info)
+
+        networkManager.fetchIPInformation()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
                 case .failure(let error):
                     self?.state = .failure(error.localizedDescription)
                 }
-            }
-        }
+            }, receiveValue: { [weak self] ipInfo in
+                self?.state = .success(ipInfo)
+            })
+            .store(in: &cancellables)
     }
 }
