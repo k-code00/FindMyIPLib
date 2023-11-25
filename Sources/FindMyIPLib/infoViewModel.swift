@@ -17,19 +17,23 @@ enum InfoViewState {
 
 class infoViewModel: ObservableObject {
     @Published var state: InfoViewState = .idle
+    @Published var showErrorAlert = false // New property for alert visibility
     private var cancellables = Set<AnyCancellable>()
     private var networkManager: IPInfoFetcher
 
     init(networkManager: IPInfoFetcher = IPInfoFetcher()) {
         self.networkManager = networkManager
-    }
 
-    var isFailure: Bool {
-        if case .failure(_) = state {
-            return true
-        } else {
-            return false
-        }
+        // Observe changes to the state and update showErrorAlert
+        $state
+            .map { state in
+                if case .failure(_) = state {
+                    return true
+                } else {
+                    return false
+                }
+            }
+            .assign(to: &$showErrorAlert)
     }
     
     func getIPInformation() {

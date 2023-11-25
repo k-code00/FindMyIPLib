@@ -59,11 +59,12 @@ public struct ipView: View {
         .onAppear {
             viewModel.getIPInformation()
         }
-        .alert(isPresented: $viewModel.isFailure) {
+        .alert(isPresented: $viewModel.showErrorAlert) {
             guard case let .failure(errorMessage) = viewModel.state else {
                 return Alert(title: Text("Error"), message: Text("Unknown Error"), dismissButton: .default(Text("OK")))
             }
             return Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
         }
+
     }
 }
