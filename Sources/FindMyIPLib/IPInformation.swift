@@ -7,6 +7,7 @@
 
 import Foundation
 
+//ip model
 struct IPInformation: Decodable {
     var ip: String
     var version: String
