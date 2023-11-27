@@ -17,7 +17,7 @@ enum InfoViewState {
 
 class infoViewModel: ObservableObject {
     @Published var state: InfoViewState = .idle
-    @Published var showErrorAlert = false // New property for alert visibility
+    @Published var showErrorAlert = false
     private var cancellables = Set<AnyCancellable>()
     private var networkManager: IPInfoFetcher
 
