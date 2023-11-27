@@ -11,9 +11,11 @@ import Combine
 enum InfoViewState {
     case idle
     case loading
+    case refreshing(IPInformation)
     case success(IPInformation)
     case failure(String)
 }
+
 
 class infoViewModel: ObservableObject {
     @Published var state: InfoViewState = .idle
@@ -43,8 +45,13 @@ class infoViewModel: ObservableObject {
     
     //fetching of IP information
     func getIPInformation() {
-        //setting state to loading before fetching
-        self.state = .loading
+        // Check if there's existing data and switch to refreshing state
+        if case .success(let currentData) = state {
+            self.state = .refreshing(currentData)
+        } else {
+            // Otherwise, set the state to loading
+            self.state = .loading
+        }
 
         networkManager.fetchIPInformation()
             //verifying the response is handled on the main thread

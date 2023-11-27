@@ -19,7 +19,7 @@ public struct ipView: View {
                 ProgressView()
                     .scaleEffect(1.5)
                     .padding()
-            case .success(let ipInfo):
+            case .success(let ipInfo), .refreshing(let ipInfo):
                 Section(header: Text("IP Address")) {
                     Menu {
                         Button(action: {}) {
@@ -65,6 +65,5 @@ public struct ipView: View {
             }
             return Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
         }
-
     }
 }
